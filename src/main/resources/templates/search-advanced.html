@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm thông tin tốt nghiệp và việc làm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand { font-weight: bold; }
+        .result-table { margin-top: 20px; }
+        .table-sm th, .table-sm td { font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap me-2"></i>Quản lý sinh viên tốt nghiệp
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/register"><i class="fas fa-user-plus me-1"></i>Đăng ký</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-search me-1"></i>Tìm kiếm
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/search/basic">Tìm kiếm cơ bản</a></li>
+                            <li><a class="dropdown-item active" href="/search/advanced">Tìm kiếm nâng cao</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Tìm kiếm thông tin tốt nghiệp và việc làm</h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/search/advanced}" method="post">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="hoTen" class="form-label">Họ và tên sinh viên</label>
+                                    <input type="text" class="form-control" id="hoTen" name="hoTen" th:value="${hoTen}">
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="tenTruong" class="form-label">Tên trường</label>
+                                    <input type="text" class="form-control" id="tenTruong" name="tenTruong" th:value="${tenTruong}">
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="tenNganh" class="form-label">Tên ngành</label>
+                                    <input type="text" class="form-control" id="tenNganh" name="tenNganh" th:value="${tenNganh}">
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="tenCongTy" class="form-label">Tên công ty</label>
+                                    <input type="text" class="form-control" id="tenCongTy" name="tenCongTy" th:value="${tenCongTy}">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="reset" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-eraser me-1"></i>Xóa
+                                </button>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-search me-1"></i>Tìm kiếm
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Graduation Information Results -->
+                <div th:if="${searchPerformed}" class="result-table">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-graduation-cap me-2"></i>Thông tin tốt nghiệp 
+                                <span class="badge bg-light text-dark ms-2" th:text="${#lists.size(graduationInfo)}"></span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div th:if="${#lists.isEmpty(graduationInfo)}" class="text-center py-4">
+                                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Không tìm thấy thông tin tốt nghiệp nào phù hợp.</p>
+                            </div>
+                            
+                            <div th:if="${not #lists.isEmpty(graduationInfo)}" class="table-responsive">
+                                <table class="table table-striped table-hover table-sm mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Số CMND</th>
+                                            <th>Họ tên</th>
+                                            <th>Mã ngành TN</th>
+                                            <th>Mã trường TN</th>
+                                            <th>Hệ TN</th>
+                                            <th>Ngày TN</th>
+                                            <th>Loại TN</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="grad, iterStat : ${graduationInfo}">
+                                            <td th:text="${iterStat.count}"></td>
+                                            <td th:text="${grad.soCMND}"></td>
+                                            <td th:text="${grad.sinhVien?.hoTen}"></td>
+                                            <td th:text="${grad.maNganh}"></td>
+                                            <td th:text="${grad.maTruong}"></td>
+                                            <td th:text="${grad.heTN}"></td>
+                                            <td th:text="${grad.ngayTN}"></td>
+                                            <td th:text="${grad.loaiTN}"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Information Results -->
+                    <div class="card shadow">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-briefcase me-2"></i>Thông tin việc làm 
+                                <span class="badge bg-light text-dark ms-2" th:text="${#lists.size(jobInfo)}"></span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div th:if="${#lists.isEmpty(jobInfo)}" class="text-center py-4">
+                                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Không tìm thấy thông tin việc làm nào phù hợp.</p>
+                            </div>
+                            
+                            <div th:if="${not #lists.isEmpty(jobInfo)}" class="table-responsive">
+                                <table class="table table-striped table-hover table-sm mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Số CMND</th>
+                                            <th>Họ tên</th>
+                                            <th>Mã ngành công ty</th>
+                                            <th>Tên công ty</th>
+                                            <th>Thời gian làm việc</th>
+                                            <th>Ngày vào công ty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="job, iterStat : ${jobInfo}">
+                                            <td th:text="${iterStat.count}"></td>
+                                            <td th:text="${job.soCMND}"></td>
+                                            <td th:text="${job.sinhVien?.hoTen}"></td>
+                                            <td th:text="${job.maNganh}"></td>
+                                            <td th:text="${job.tenCongTy}"></td>
+                                            <td>
+                                                <span th:text="${job.thoiGianLamViec}"></span>
+                                                <span th:if="${job.thoiGianLamViec != null}"> tháng</span>
+                                            </td>
+                                            <td th:text="${job.ngayVaoCongTy}"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0 text-muted">© 2025 Hệ thống quản lý sinh viên tốt nghiệp - Bộ Giáo dục và Đào tạo</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
